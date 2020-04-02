@@ -7,9 +7,9 @@ fun playMorse(morse: String, dotFile: String, lineFile: String) {
         when (c) {
             '.' -> playSound(dotFile)
             '-' -> playSound(lineFile)
-            ' ' -> pause(12)
+            ' ' -> pause_ms(1200)
         }
-        pause(6)
+        pause_ms(600)
     }
 }
 
@@ -26,14 +26,14 @@ fun textToMorse(text: String) : String {
             '5' to ".....", '6' to "-....", '7' to "--...", '8' to "---..",
             '9' to "----.", '0' to "-----")
     var result = mutableListOf<String>()
-    for (c in text) {
+    for (c in text.toLowerCase()) {
         result.add(chars.getOrDefault(c, ""))
     }
     return result.joinToString(" ")
 }
 
-fun pause(length: Int) {
-    Thread.sleep(100 * (length + 1L))
+fun pause_ms(length: Int) {
+    Thread.sleep(length + 1L)
 }
 
 fun playSound(file: String) {
@@ -43,6 +43,11 @@ fun playSound(file: String) {
     clip.start()
 }
 
-fun main() {
-    playMorse(textToMorse("viel glück"), "audio/toms.aiff", "audio/crash_cymbal.aiff")
+fun main(args: Array<String>) {
+    if(args.size == 0){
+        playMorse(textToMorse("viel glück"), "audio/toms.aiff", "audio/crash_cymbal.aiff")
+    }
+    else{
+        playMorse(textToMorse(args[0]), "audio/toms.aiff", "audio/crash_cymbal.aiff")
+    }
 }
