@@ -1,0 +1,6 @@
+*.jar
+META-INF/
+.Morse.kt.swp
+out.jare/
+MorseKt.class
+.DS_Store

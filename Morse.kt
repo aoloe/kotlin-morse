@@ -7,9 +7,9 @@ fun playMorse(morse: String, dotFile: String, lineFile: String) {
         when (c) {
             '.' -> playSound(dotFile)
             '-' -> playSound(lineFile)
-            ' ' -> pause(20)
+            ' ' -> pause_ms(2000) // fast = 1200
         }
-        pause(10 + (-2..2).random())
+        pause_ms(1000 + (-2..2).random() * 100) // fast = 600
         println("$c / $i / ${morse.length}")
     }
 }
@@ -34,8 +34,8 @@ fun textToMorse(text: String) : String {
     return result.joinToString(" ")
 }
 
-fun pause(length: Int) {
-    Thread.sleep(100 * (length + 1L))
+fun pause_ms(length: Int) {
+    Thread.sleep(length + 1L)
 }
 
 fun playSound(file: String) {
@@ -45,21 +45,33 @@ fun playSound(file: String) {
     clip.start()
 }
 
-fun main() {
+fun get_file_content(filename: String): String? {
+    // TODO: remove the final \n
+    val text_file = File(filename)
+    if (text_file.exists()) {
+        return text_file.readText(Charsets.UTF_8)
+    }
+    return null
+}
 
-    val text = mapOf(
-        "max-1" to "Ich war voll konzentriert, das Geschnätzelte in Butter zu braten, damit der Hauptgang rechtzeitig bereit ist",
-        "max-2" to "Durch die Zwiebeln waren meine Augen vernebelt und ich sah nichts",
-        "frida-1" to "Ich nahm die Pizzette für den Apero aus dem Backofen",
-        "frida-2" to "Er war bestimmt 350 Grad heiss und ich wollte mich nicht verbrennen",
-        "frida-3" to "Ich konnte mich nicht umsehen",
-        "fridolin-1" to "Ich war im Stress, weil der marktfrische Blattsalat unbedingt fertig sein muss",
-        "fridolin-2" to "Der Lärm des sprudelnden heissen Wassers war so laut, dass ich nichts hörte",
-        "mia-1" to "Die gelieferten, mehligen Kartoffeln waren so mühsam für die Rösti",
-        "mia-2" to "Ich hatte so viel Mühe beim Raffeln, dass ich nicht auf die Ringe aufpassen konnte"
-    )
 
-    // playMorse(textToMorse("viel glück"), "audio/toms.aiff", "audio/crash_cymbal.aiff")
+fun read_text_from_args(args: Array<String>): String? {
+    // TODO: also read the dot and line sounds from the command line
+    // using https://github.com/Kotlin/kotlinx.cli ?
+    return when (args.size) {
+        2 -> if (args[0] == "-f") get_file_content(args[1]) else null
+        1 -> args[0]
+        else -> null
+    }
+}
 
-    playMorse(textToMorse(text.getOrDefault("mia-2", "")), "audio/toms.aiff", "audio/crash_cymbal.aiff")
+fun main(args: Array<String>) {
+    val text = read_text_from_args(args)
+    if (text != null) {
+        playMorse(textToMorse(text), "audio/toms.aiff", "audio/crash_cymbal.aiff")
+    } else {
+        println("usage:")
+        println("  java -jar Morse -f textfile.txt")
+        println("  java -jar Morse \"Some text\"")
+    }
 }
